@@ -1,0 +1,55 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import Dashboard from "./pages/Dashboard";
+import Customers from "./pages/Customers";
+import Reports from "./pages/Reports";
+import Login from "./pages/Login";
+import Sidebar from "./components/Sidebar";
+import CustomerDetail from "./pages/CustomerDetail";
+import CustomerTable from "./components/CustomerTable";
+import ReportTable from "./components/ReportTable";
+
+function App() {
+  const [customers, setCustomers] = useState([]);
+  const [reports, setReports] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/customers")
+      .then((res) => res.json())
+      .then((data) => setCustomers(data))
+      .catch((error) => console.error("Error fetching customers:", error));
+    
+    fetch("http://localhost:8000/reports")
+      .then((res) => res.json())
+      .then((data) => setReports(data))
+      .catch((error) => console.error("Error fetching reports:", error));
+  }, []);
+
+  return (
+    <Router>
+      <div className="flex h-screen">
+        <Sidebar />
+        <div className="flex-1 p-4">
+          <Routes>
+            <Route path="/" element={<Dashboard customers={customers} reports={reports} />} />
+            <Route path="/customers" element={<Customers customers={customers} />} />
+            <Route path="/customers/:id" element={<CustomerDetail />} />
+            <Route path="/reports" element={<Reports reports={reports} />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold">Müşteriler</h2>
+            <CustomerTable customers={customers} />
+          </div>
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold">Raporlar</h2>
+            <ReportTable reports={reports} />
+          </div>
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
